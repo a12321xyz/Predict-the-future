@@ -24,7 +24,7 @@ export function MarketDetailView({ id }: { id: string }) {
   const [txSuccess, setTxSuccess] = useState<string | null>(null);
   const [betAmount, setBetAmount] = useState<string>("10");
   const { address: account } = useAccount();
-  const [isTxPending, setIsTxPending] = useState(false);
+  const [txPendingAction, setTxPendingAction] = useState<string | null>(null);
   const [userBet, setUserBet] = useState<{bet_yes: string, bet_no: string, claimed: boolean} | null>(null);
 
   const load = useCallback(async () => {
@@ -55,14 +55,14 @@ export function MarketDetailView({ id }: { id: string }) {
     clearMessages();
     if (!account) { setTxError("Please connect your wallet first."); return; }
     try {
-      setIsTxPending(true);
+      setTxPendingAction(isYes ? 'bet-yes' : 'bet-no');
       await placeBet(account, id, isYes, parseEther(betAmount));
       setTxSuccess(`Successfully bet ${betAmount} GEN on ${isYes ? "YES" : "NO"}!`);
       await load();
     } catch (err: any) {
       setTxError(err.message || "Failed to place bet");
     } finally {
-      setIsTxPending(false);
+      setTxPendingAction(null);
     }
   }
 
@@ -70,14 +70,14 @@ export function MarketDetailView({ id }: { id: string }) {
     clearMessages();
     if (!account) { setTxError("Please connect your wallet first."); return; }
     try {
-      setIsTxPending(true);
+      setTxPendingAction('resolve');
       await resolveMarket(account, id);
       setTxSuccess("Market resolved successfully!");
       await load();
     } catch (err: any) {
       setTxError(err.message || "Failed to resolve market");
     } finally {
-      setIsTxPending(false);
+      setTxPendingAction(null);
     }
   }
 
@@ -85,14 +85,14 @@ export function MarketDetailView({ id }: { id: string }) {
     clearMessages();
     if (!account) { setTxError("Please connect your wallet first."); return; }
     try {
-      setIsTxPending(true);
+      setTxPendingAction('claim');
       await claimWinnings(account, id);
       setTxSuccess("Winnings claimed successfully!");
       await load();
     } catch (err: any) {
       setTxError(err.message || "Failed to claim winnings");
     } finally {
-      setIsTxPending(false);
+      setTxPendingAction(null);
     }
   }
 
@@ -197,11 +197,11 @@ export function MarketDetailView({ id }: { id: string }) {
                  <span className="text-zinc-600 dark:text-zinc-400 font-semibold">GEN</span>
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
-                 <button disabled={isTxPending} onClick={() => handleBet(true)} className="flex-1 bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-all shadow-sm active:scale-[0.98]">
-                   {isTxPending ? "Processing..." : "Bet YES"}
+                 <button disabled={!!txPendingAction} onClick={() => handleBet(true)} className="flex-1 bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-all shadow-sm active:scale-[0.98]">
+                   {txPendingAction === 'bet-yes' ? "Processing..." : "Bet YES"}
                  </button>
-                 <button disabled={isTxPending} onClick={() => handleBet(false)} className="flex-1 bg-rose-500 text-white font-semibold py-3 rounded-lg hover:bg-rose-600 disabled:opacity-50 transition-all shadow-sm active:scale-[0.98]">
-                   {isTxPending ? "Processing..." : "Bet NO"}
+                 <button disabled={!!txPendingAction} onClick={() => handleBet(false)} className="flex-1 bg-rose-500 text-white font-semibold py-3 rounded-lg hover:bg-rose-600 disabled:opacity-50 transition-all shadow-sm active:scale-[0.98]">
+                   {txPendingAction === 'bet-no' ? "Processing..." : "Bet NO"}
                  </button>
               </div>
            </div>
@@ -240,8 +240,8 @@ export function MarketDetailView({ id }: { id: string }) {
               </div>
               
               {market.status === 'resolved' && !userBet.claimed && (
-                 <button disabled={isTxPending} onClick={handleClaim} className="mt-6 w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-all shadow-sm active:scale-[0.98]">
-                   {isTxPending ? "Claiming..." : "Claim Winnings"}
+                 <button disabled={!!txPendingAction} onClick={handleClaim} className="mt-6 w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-all shadow-sm active:scale-[0.98]">
+                   {txPendingAction === 'claim' ? "Claiming..." : "Claim Winnings"}
                  </button>
               )}
               {market.status === 'resolved' && userBet.claimed && (
@@ -252,8 +252,8 @@ export function MarketDetailView({ id }: { id: string }) {
 
         {market.status === 'open' && (
            <div className="mt-8 pt-6 border-t border-zinc-200 dark:border-zinc-800 flex justify-end">
-              <button disabled={isTxPending} onClick={handleResolve} className="text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 transition-colors border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 bg-white dark:bg-zinc-900 shadow-sm active:scale-[0.98]">
-                {isTxPending ? "Resolving..." : "Trigger AI Resolution"}
+              <button disabled={!!txPendingAction} onClick={handleResolve} className="text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 transition-colors border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 bg-white dark:bg-zinc-900 shadow-sm active:scale-[0.98]">
+                {txPendingAction === 'resolve' ? "Resolving..." : "Trigger AI Resolution"}
               </button>
            </div>
         )}
