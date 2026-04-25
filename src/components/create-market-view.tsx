@@ -32,7 +32,7 @@ export function CreateMarketView() {
      try {
        setIsPending(true);
        await createMarket(account, formData.question, formData.description, formData.resolutionUrl, BigInt(resolveAfterTimestamp));
-       router.push("/markets");
+       router.push("/markets?pending=true");
      } catch (err: any) {
        setError(err.message || "Failed to create market");
      } finally {

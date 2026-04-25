@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getLiveMarkets } from "@/lib/contract";
 import { formatGen } from "@/lib/format";
@@ -17,6 +18,8 @@ function getYesProbability(m: Market): number {
 export function MarketListView() {
   const [markets, setMarkets] = useState<Market[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const isPending = searchParams.get("pending") === "true";
 
   useEffect(() => {
     async function load() {
@@ -40,6 +43,13 @@ export function MarketListView() {
           Create Market
         </Link>
       </div>
+
+      {isPending && (
+        <div className="rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30 p-4 text-sm font-medium text-blue-600 dark:text-blue-400 flex items-start gap-3">
+          <span className="shrink-0 mt-0.5">ℹ️</span>
+          <div className="flex-1">Your transaction has been submitted to the GenLayer network! It may take a few minutes for the new market to be finalized and appear below. You can safely refresh this page later.</div>
+        </div>
+      )}
 
       {isLoading ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
