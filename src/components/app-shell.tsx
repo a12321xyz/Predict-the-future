@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { ConnectWalletButton } from "@/components/connect-wallet-button";
-import { appConfig } from "@/lib/env";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -52,15 +52,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </nav>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
               <div className="hidden sm:block">
                 <ConnectWalletButton />
               </div>
             </div>
           </div>
           {/* Mobile Navigation Row & Wallet Button */}
-          <div className="mt-4 flex items-center justify-between md:hidden pb-1">
-             <nav className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+          <div className="mt-3 flex items-center justify-between gap-3 md:hidden pb-1">
+             <nav className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-1">
                 {navItems.map((item) => {
                   const active =
                     item.href === "/"
@@ -81,9 +82,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   );
                 })}
              </nav>
-          </div>
-          <div className="mt-3 block sm:hidden">
-              <ConnectWalletButton />
+             <div className="flex items-center gap-2 shrink-0">
+               <ConnectWalletButton />
+             </div>
           </div>
         </div>
       </header>

@@ -1,5 +1,5 @@
 {
-  "name": "pr-to-payout",
+  "name": "predict-the-future",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,8 +8,6 @@
     "start": "next start",
     "lint": "eslint .",
     "test": "vitest run",
-    "test:contract": "npx tsx scripts/health-check.ts",
-    "test:sim": "npx tsx scripts/test-simulator.ts",
     "test:watch": "vitest"
   },
   "dependencies": {

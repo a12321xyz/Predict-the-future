@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ShieldCheck, Gem, Database, ArrowRight, BrainCircuit, Globe, Activity } from "lucide-react";
+import { Database, ArrowRight, BrainCircuit, Globe, Activity } from "lucide-react";
 
 export default function Home() {
   return (
@@ -36,7 +36,7 @@ export default function Home() {
             </Link>
             <Link
               href="/create-market"
-              className="inline-flex w-full sm:w-auto items-center justify-center rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-8 py-4 text-base font-bold text-zinc-800 dark:text-zinc-200 shadow-sm transition-all hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:scale-[1.02] active:scale-[0.98]"
+              className="group inline-flex w-full sm:w-auto items-center justify-center rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-8 py-4 text-base font-bold text-zinc-800 dark:text-zinc-200 shadow-sm transition-all hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:scale-[1.02] active:scale-[0.98]"
             >
               <span className="flex items-center gap-2">
                 Create a Market <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

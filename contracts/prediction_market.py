@@ -8,7 +8,7 @@ class _Recipient:
     class View:
         pass
     class Write:
-        pass
+        def send(self) -> None: ...
 
 class PredictionMarket(gl.Contract):
     # ── Storage ──────────────────────────────────────────────────────
@@ -223,7 +223,7 @@ Respond ONLY with a JSON object:
             raise gl.vm.UserError("No winnings to claim")
             
         self.claimed[mid_bi][sender] = True
-        _Recipient(Address(sender)).emit_transfer(value=payout)
+        _Recipient(Address(sender)).send(value=payout)
 
     # ── View Methods ─────────────────────────────────────────────────
     @gl.public.view

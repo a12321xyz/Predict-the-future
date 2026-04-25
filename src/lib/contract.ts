@@ -125,7 +125,10 @@ export const testMarkets: Market[] = [
 ];
 
 export async function getLiveMarkets() {
-  let items: Market[] = [];
+  if (!appConfig.isLive) {
+    return testMarkets;
+  }
+
   try {
     const raw = await readJson("list_markets");
     const parsed = parseJson<
@@ -144,12 +147,11 @@ export async function getLiveMarkets() {
       }>
     >(raw, "list_markets");
     
-    items = parsed.map(mapMarket);
+    return parsed.map(mapMarket).sort((left, right) => Number(right.id) - Number(left.id));
   } catch (err) {
     console.warn("Failed to load live markets, falling back to test markets.", err);
+    return testMarkets;
   }
-
-  return [...items.sort((left, right) => Number(right.id) - Number(left.id)), ...testMarkets];
 }
 
 export async function getLiveMarketById(id: string) {

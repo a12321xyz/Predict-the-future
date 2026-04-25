@@ -9,9 +9,11 @@ import { applyWalletShim } from "@/lib/genlayer";
 export default function DeployPage() {
   const [status, setStatus] = useState<string>("Ready to deploy");
   const [contractAddress, setContractAddress] = useState<string>("");
+  const [isDeploying, setIsDeploying] = useState(false);
 
   const deploy = async () => {
     try {
+      setIsDeploying(true);
       setStatus("Fetching contract code...");
       const res = await fetch("/api/contract");
       const { code } = await res.json();
@@ -60,43 +62,52 @@ export default function DeployPage() {
     } catch (error: any) {
       console.error(error);
       setStatus(`Error: ${error.message || "Deployment failed"}`);
+    } finally {
+      setIsDeploying(false);
     }
   };
 
 
   return (
-    <div className="container mx-auto max-w-2xl p-8 pt-24 text-center">
-      <h1 className="mb-6 text-3xl font-bold">One-Click GenLayer Deployer</h1>
-      <p className="mb-8 text-slate-400">
-        Deploy directly from your browser to bypass CLI errors. Make sure your MetaMask is set to the Bradbury Testnet.
-      </p>
+    <div className="max-w-2xl mx-auto space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 mb-2">Deploy Contract</h1>
+        <p className="text-zinc-600 dark:text-zinc-400 text-sm">
+          Deploy the PredictionMarket contract directly from your browser. Make sure your wallet is connected to Bradbury Testnet (Chain ID 4221).
+        </p>
+      </div>
 
       <button
         onClick={deploy}
-        className="mb-8 rounded-lg bg-emerald-600 px-6 py-3 font-semibold text-white transition hover:bg-emerald-500"
+        disabled={isDeploying}
+        className="w-full sm:w-auto rounded-xl bg-blue-600 px-8 py-3.5 font-semibold text-white transition-all hover:bg-blue-700 disabled:opacity-50 shadow-sm hover:shadow-md active:scale-[0.98]"
       >
-        Deploy to Bradbury
+        {isDeploying ? "Deploying..." : "Deploy to Bradbury"}
       </button>
 
-      <div className="rounded-lg border border-slate-700 bg-slate-800 p-6 text-left shadow-lg">
-        <h2 className="mb-2 text-sm font-semibold text-slate-400">Status</h2>
-        <p className="mb-4 text-emerald-400">{status}</p>
+      <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 shadow-sm space-y-6">
+        <div>
+          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">Status</h2>
+          <p className={`text-sm font-medium ${status.startsWith("Error") ? "text-rose-500 dark:text-rose-400" : status.includes("success") ? "text-emerald-600 dark:text-emerald-400" : "text-zinc-900 dark:text-zinc-50"}`}>{status}</p>
+        </div>
 
-        <h2 className="mb-2 text-sm font-semibold text-slate-400">Check Explorer</h2>
-        <p className="mb-4 text-sm text-slate-300">
-          Open MetaMask, click the &quot;Contract Deployment&quot; transaction you just approved, and click &quot;View on block explorer&quot;. Your contract address will be there!
-        </p>
+        <div>
+          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">Finding Your Contract</h2>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+            Open your wallet, click the &quot;Contract Deployment&quot; transaction you just approved, and click &quot;View on block explorer&quot;. Your contract address will be there.
+          </p>
+        </div>
 
         {contractAddress && (
-          <>
-            <h2 className="mb-2 text-sm font-semibold text-slate-400">Contract Address found in Receipt</h2>
-            <div className="rounded bg-slate-900 p-3 font-mono text-white break-all">
+          <div className="space-y-3">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">Contract Address</h2>
+            <div className="rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 p-4 font-mono text-sm text-zinc-900 dark:text-zinc-50 break-all">
               {contractAddress}
             </div>
-            <p className="mt-4 text-sm text-slate-400">
-              ✅ Copy this address and put it in your <code className="text-pink-400">.env</code> file under <code className="text-pink-400">NEXT_PUBLIC_CONTRACT_ADDRESS</code>.
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              ✅ Copy this address and put it in your <code className="text-blue-600 dark:text-blue-400 font-semibold">.env</code> file under <code className="text-blue-600 dark:text-blue-400 font-semibold">NEXT_PUBLIC_CONTRACT_ADDRESS</code>.
             </p>
-          </>
+          </div>
         )}
       </div>
     </div>

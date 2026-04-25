@@ -1,31 +1,32 @@
-# PR-to-Payout
+# PredictTheFuture
 
-Bounty escrow for GitHub pull requests, powered by GenLayer's Intelligent Contracts.
+AI-Resolved Prediction Markets built on GenLayer's Intelligent Contracts.
 
-A sponsor posts a bounty with acceptance criteria in plain English. A builder submits their GitHub PR and deployment URL. GenLayer validators fetch the PR page, check the deployment, and use AI consensus to decide if the work meets the criteria. If approved, the escrowed GEN tokens are released to the builder automatically. No middleman, no manual review.
+Create a market around any real-world question. Users bet GEN tokens on YES or NO. When the resolution date arrives, GenLayer validators autonomously browse the web, gather evidence, and use AI consensus to determine the outcome. Winners split the losing pool proportionally—no human middlemen, no dispute committees.
 
 ## How It Works
 
 ```
-Sponsor creates bounty → Funds it with GEN → Builder submits PR + deploy URL
-                                                        ↓
-                              GenLayer validators fetch evidence from GitHub & deployment
-                                                        ↓
-                                AI consensus: approved / rejected / needs review
-                                                        ↓
-                              Approved → GEN auto-released to builder's wallet
+Creator opens a market → Users bet YES / NO with GEN tokens
+                                       ↓
+                   Resolution date arrives → Anyone triggers resolution
+                                       ↓
+           GenLayer validators fetch evidence from the resolution URL
+                                       ↓
+              AI consensus: YES / NO / INVALID (Optimistic Democracy)
+                                       ↓
+           Winners claim proportional share of the total pool
 ```
 
-1. **Create** — Sponsor defines a task with title, description, repo URL, acceptance criteria, payout amount, and deadline
-2. **Fund** — Sponsor sends GEN tokens to the contract as escrow
-3. **Submit** — Builder links their GitHub PR and live deployment URL
-4. **Evaluate** — GenLayer validators independently fetch the PR and deployment pages, then an LLM evaluates whether the acceptance criteria are met. Validators reach consensus using Optimistic Democracy
-5. **Payout** — If approved, escrowed GEN is sent to the builder. If rejected, the builder can appeal for a re-evaluation
+1. **Create** — Define a question, description, resolution URL, and deadline
+2. **Bet** — Send GEN tokens on YES or NO. Tokens go into escrow pools
+3. **Resolve** — After the deadline, anyone triggers AI resolution. Validators independently fetch the resolution source and evaluate the outcome
+4. **Claim** — Winners claim their proportional share of the total pool. If the outcome is INVALID, all bettors are refunded
 
 ## Architecture
 
 **On-chain (GenLayer Bradbury Testnet)**
-- `contracts/pr_to_payout.py` — Intelligent Contract handling bounty state, GEN escrow, AI evaluation via `run_nondet_unsafe`, and automated payouts through ghost contracts
+- `contracts/prediction_market.py` — Intelligent Contract handling market state, GEN escrow pools, AI-powered resolution via `run_nondet_unsafe`, and automated payouts
 - Storage: JSON blobs in `TreeMap[bigint, str]` for reliable serialization on GenVM
 
 **Frontend (Next.js 16)**
@@ -58,60 +59,46 @@ Open [http://localhost:3000](http://localhost:3000).
 Create a `.env` file:
 
 ```
-NEXT_PUBLIC_CONTRACT_ADDRESS=0x65454C3F3B6630C3E36A9B0B6628Dc4C790daF0e
+NEXT_PUBLIC_CONTRACT_ADDRESS=<your-deployed-contract-address>
 NEXT_PUBLIC_GENLAYER_NETWORK=testnetBradbury
 NEXT_PUBLIC_GENLAYER_RPC_URL=https://rpc-bradbury.genlayer.com
 ```
 
-Without `NEXT_PUBLIC_CONTRACT_ADDRESS`, the app runs in demo mode with sample bounties.
+Without `NEXT_PUBLIC_CONTRACT_ADDRESS`, the app runs in demo mode with sample markets.
 
 ## Deploying the Contract
-
-**Option A — From the browser**
 
 1. Connect your wallet to Bradbury testnet (Chain ID 4221)
 2. Go to `/deploy` in the app
 3. Click "Deploy to Bradbury" and approve in your wallet
 4. Copy the contract address into `.env`
 
-**Option B — From CLI**
-
-```bash
-npx tsx scripts/deploy-main.ts
-```
-
-This deploys, waits for acceptance, updates `.env`, and verifies the contract is live.
-
 ## Contract Methods
 
 | Method | Type | Description |
 |--------|------|-------------|
-| `create_bounty` | write | Create a new bounty with acceptance criteria |
-| `fund_bounty` | payable | Send GEN to escrow |
-| `submit_proof` | write | Submit PR + deploy URL, triggers AI evaluation |
-| `cancel_bounty` | write | Sponsor cancels (refunds if funded) |
-| `refund_bounty` | write | Sponsor reclaims escrowed GEN |
-| `appeal_submission` | write | Builder requests re-evaluation |
-| `list_bounties_json` | view | List all bounties |
-| `get_bounty_json` | view | Get single bounty by ID |
-| `get_submission_for_bounty_json` | view | Get submission for a bounty |
+| `create_market` | write | Create a new prediction market |
+| `bet` | payable | Bet GEN on YES or NO |
+| `resolve_market` | write | Trigger AI resolution (fetches evidence, runs consensus) |
+| `claim_winnings` | write | Claim proportional winnings after resolution |
+| `list_markets` | view | List all markets with pool data |
+| `get_market` | view | Get single market by ID |
+| `get_bet` | view | Get a user's bet for a market |
 
 ## Project Structure
 
 ```
-pr-to-payout/
+predict-the-future/
 ├── contracts/
-│   └── pr_to_payout.py        # GenLayer Intelligent Contract
-├── scripts/
-│   ├── deploy-main.ts          # CLI deployment script
-│   └── health-check.ts         # Contract liveness + create bounty test
+│   └── prediction_market.py    # GenLayer Intelligent Contract
 ├── src/
-│   ├── app/                    # Next.js pages (home, create, bounties, deploy)
+│   ├── app/                    # Next.js pages (home, create, markets, deploy)
 │   ├── components/             # React components
 │   └── lib/
 │       ├── contract.ts         # Contract read/write adapter
 │       ├── genlayer.ts         # GenLayer client setup + wallet shim
-│       ├── validation.ts       # Zod schema validation
+│       ├── format.ts           # Formatting utilities
+│       ├── env.ts              # Environment configuration
 │       └── types.ts            # TypeScript types
 └── package.json
 ```
@@ -125,7 +112,6 @@ pr-to-payout/
 | RPC | https://rpc-bradbury.genlayer.com |
 | Explorer | https://explorer-bradbury.genlayer.com |
 | Faucet | https://testnet-faucet.genlayer.foundation |
-| Deployed Contract | `0x65454C3F3B6630C3E36A9B0B6628Dc4C790daF0e` |
 
 ## License
 
