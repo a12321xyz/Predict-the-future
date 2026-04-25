@@ -88,7 +88,7 @@ async function write(
     value,
   });
 
-  await waitForFinalizedTransaction(client, hash);
+  // await waitForFinalizedTransaction(client, hash);
 
   return { hash };
 }
