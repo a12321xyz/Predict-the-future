@@ -27,7 +27,7 @@ Creator opens a market → Users bet YES / NO with GEN tokens
 
 **On-chain (GenLayer Bradbury Testnet)**
 - `contracts/prediction_market.py` — Intelligent Contract handling market state, GEN escrow pools, AI-powered resolution via `run_nondet_unsafe`, and automated payouts
-- Storage: JSON blobs in `TreeMap[bigint, str]` for reliable serialization on GenVM
+- Storage: JSON blobs in `TreeMap[u256, str]` for reliable serialization on GenVM
 
 **Frontend (Next.js 16)**
 - React app with wallet connection (MetaMask, Rabby, etc.)
